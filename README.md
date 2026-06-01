@@ -61,6 +61,10 @@ Delete Own Task
 
 storage of the data in a cache in between the mongoDB and the backend.
 
+Redis caching is implemented and enabled when a Redis instance is available.
+
+For deployments where Redis is not provisioned, the application gracefully falls back to direct database queries without affecting functionality.
+
 # REST api architecture
 
 maintains the proper api and https method to perfom the task and user management.

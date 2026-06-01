@@ -1,4 +1,4 @@
-const { redisClient } = require("../config/redis");
+const { getRedisClient } = require("../config/redis");
 const Task = require("../models/Task");
 
 exports.createTask = async (req, res) => {
@@ -19,10 +19,11 @@ exports.getTasks = async (req, res) => {
   try {
     const cacheKey = `tasks:${req.user.team}`;
 
+    const redisClient = getRedisClient();
     let cachedTasks = null;
 
     if (redisClient) {
-      cachedTasks = await redisClient.get(cacheKey);
+      cachedTasks = redisClient? await redisClient.get(cacheKey):null;
     }
     if (cachedTasks) {
       console.log("CACHE HIT");
@@ -36,7 +37,7 @@ exports.getTasks = async (req, res) => {
       team: req.user.team,
     });
     if (redisClient) {
-    await redisClient.set(cacheKey, JSON.stringify(tasks), "EX", 300);
+      await redisClient.set(cacheKey, JSON.stringify(tasks), "EX", 300);
     }
     res.json(tasks);
   } catch (error) {
