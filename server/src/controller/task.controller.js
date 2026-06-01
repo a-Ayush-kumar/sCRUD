@@ -7,7 +7,10 @@ exports.createTask = async (req, res) => {
     team: req.user.team,
     createdBy: req.user.id,
   });
-  await redisClient.del(`tasks:${req.user.team}`);
+
+  if (redisClient) {
+    await redisClient.del(`tasks:${req.user.team}`);
+  }
 
   res.status(201).json(task);
 };
@@ -16,8 +19,11 @@ exports.getTasks = async (req, res) => {
   try {
     const cacheKey = `tasks:${req.user.team}`;
 
-    const cachedTasks = await redisClient.get(cacheKey);
+    let cachedTasks = null;
 
+    if (redisClient) {
+      cachedTasks = await redisClient.get(cacheKey);
+    }
     if (cachedTasks) {
       console.log("CACHE HIT");
 
@@ -29,9 +35,9 @@ exports.getTasks = async (req, res) => {
     const tasks = await Task.find({
       team: req.user.team,
     });
-
+    if (redisClient) {
     await redisClient.set(cacheKey, JSON.stringify(tasks), "EX", 300);
-
+    }
     res.json(tasks);
   } catch (error) {
     console.error(error);
@@ -52,7 +58,9 @@ exports.updateTask = async (req, res) => {
       message: "Task not found",
     });
   }
-  await redisClient.del(`tasks:${req.user.team}`);
+  if (redisClient) {
+    await redisClient.del(`tasks:${req.user.team}`);
+  }
   if (req.user.role === "user" && task.createdBy.toString() !== req.user.id) {
     return res.status(403).json({
       message: "Not allowed",
@@ -73,8 +81,9 @@ exports.deleteTask = async (req, res) => {
       message: "Task not found",
     });
   }
-
-  await redisClient.del(`tasks:${req.user.team}`);
+  if (redisClient) {
+    await redisClient.del(`tasks:${req.user.team}`);
+  }
   if (req.user.role === "user" && task.createdBy.toString() !== req.user.id) {
     return res.status(403).json({
       message: "Not allowed",

@@ -21,9 +21,11 @@ exports.register = async (req, res) => {
     });
 
   if (existing) {
-    await redisClient.set(`user:${email}`, JSON.stringify(existing), {
-      EX: 600,
-    });
+    if (redisClient) {
+      await redisClient.set(`user:${email}`, JSON.stringify(existing), {
+        EX: 600,
+      });
+    }
   }
 
   const hashed = await bcrypt.hash(password, 10);
