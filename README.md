@@ -26,8 +26,8 @@ Redis(ioredis)
 
 # Deployment
 
-Vercel (Frontend)
-Render (Backend)
+Vercel (Frontend)[https://s-crud.vercel.app/]
+Render (Backend)[https://scrud.onrender.com]
 
 # Tool
 Git
